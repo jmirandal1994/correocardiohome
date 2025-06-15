@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CardioHome Mailer</title>
+</head>
+<body>
+    <h1>Subir Excel de colegios</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".xlsx">
+        <button type="submit">Subir y ver lista</button>
+    </form>
+
+    {% if data %}
+        <h2>Previsualización</h2>
+        <table border="1">
+            <tr>
+                <th>Colegio</th>
+                <th>Correo</th>
+                <th>Neurología</th>
+                <th>Medicina Familiar</th>
+            </tr>
+            {% for row in data %}
+            <tr>
+                <td>{{ row['Colegio'] }}</td>
+                <td>{{ row['Correo'] }}</td>
+                <td>{{ row['Neurología'] }}</td>
+                <td>{{ row['Medicina Familiar'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <form method="POST" action="{{ url_for('send_emails') }}">
+            <input type="hidden" name="data" value="{{ data | tojson }}">
+            <button type="submit">Enviar todos los correos</button>
+        </form>
+    {% endif %}
+</body>
+</html>
