@@ -8,11 +8,13 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Ajusta tus credenciales SMTP aquí:
-EMAIL_ADDRESS = 'contacto@cardiohome.cl'
-EMAIL_PASSWORD = 'TU_CONTRASEÑA_SMTP_O_APP_PASSWORD'
-SMTP_SERVER = 'smtp.tuservidor.com'  # ej: smtp.gmail.com o el de tu hosting
-SMTP_PORT = 587  # usualmente 587 (TLS) o 465 (SSL)
+import os
+
+# ✅ Toma las credenciales desde las Variables de Entorno
+EMAIL_ADDRESS = os.environ.get('EMAIL_ADDRESS')
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+SMTP_SERVER = os.environ.get('SMTP_SERVER')
+SMTP_PORT = int(os.environ.get('SMTP_PORT'))
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -45,15 +47,19 @@ def send_emails():
             msg['To'] = row['Correo']
 
             body = f"""
-Estimados {row['Colegio']},
+Estimados equipo de {row['Colegio']},
 
-Solicitamos su apoyo para enviar el estado de conformidad de los estudiantes evaluados:
+Junto con saludarles, solicitamos su colaboración para remitir el estado de conformidad correspondiente a los estudiantes evaluados por nuestro equipo:
 
-- Neurología: {row['Neurología']}
-- Medicina Familiar: {row['Medicina Familiar']}
+- Evaluados en Neurología: {row['Neurología']}
+- Evaluados en Medicina Familiar: {row['Medicina Familiar']}
+
+Agradecemos de antemano su apoyo y disposición, Favor enviarlo dentro de las proximas 24 horas habiles a mas tardar.
+
+Quedamos atentos a cualquier consulta.
 
 Saludos cordiales,
-CardioHome
+Equipo CardioHome
             """
             msg.set_content(body)
             smtp.send_message(msg)
