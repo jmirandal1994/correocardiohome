@@ -1,38 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>CardioHome Mailer</title>
+  <meta charset="UTF-8" />
+  <title>CardioHome Mailer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    form {
+      margin: 20px auto;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    table {
+      margin: 30px auto;
+      border-collapse: collapse;
+      width: 80%;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    .section {
+      margin-top: 40px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Subir Excel de colegios</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".xlsx">
-        <button type="submit">Subir y ver lista</button>
-    </form>
 
-    {% if data %}
-        <h2>Previsualización</h2>
-        <table border="1">
-            <tr>
-                <th>Colegio</th>
-                <th>Correo</th>
-                <th>Neurología</th>
-                <th>Medicina Familiar</th>
-            </tr>
-            {% for row in data %}
-            <tr>
-                <td>{{ row['Colegio'] }}</td>
-                <td>{{ row['Correo'] }}</td>
-                <td>{{ row['Neurología'] }}</td>
-                <td>{{ row['Medicina Familiar'] }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+  <h1>CardioHome - Envío de Correos</h1>
 
-        <form method="POST" action="{{ url_for('send_emails') }}">
-            <input type="hidden" name="data" value="{{ data | tojson }}">
-            <button type="submit">Enviar todos los correos</button>
-        </form>
-    {% endif %}
+  <!-- Formulario para subir Excel -->
+  <form method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".xlsx" required>
+    <button type="submit">Subir y Ver Lista</button>
+  </form>
+
+  {% if data %}
+    <div class="section">
+      <h2>📋 Previsualización de Correos</h2>
+      <table>
+        <tr>
+          <th>Colegio</th>
+          <th>Correo</th>
+          <th>Neurología</th>
+          <th>Medicina Familiar</th>
+        </tr>
+        {% for row in data %}
+        <tr>
+          <td>{{ row['Colegio'] }}</td>
+          <td>{{ row['Correo'] }}</td>
+          <td>{{ row['Neurología'] }}</td>
+          <td>{{ row['Medicina Familiar'] }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+
+      <!-- Botón para enviar todos los correos -->
+      <form method="POST" action="{{ url_for('send_emails') }}">
+        <input type="hidden" name="data" value="{{ data | tojson }}">
+        <button type="submit">🚀 Enviar Todos los Correos</button>
+      </form>
+    </div>
+  {% endif %}
+
 </body>
 </html>
