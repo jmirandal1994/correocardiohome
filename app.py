@@ -42,25 +42,29 @@ def send_emails():
 
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as smtp:
             smtp.starttls()
-            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            smtp.login(EMAIL_ADDRESS.strip(), EMAIL_PASSWORD.strip())
 
             for row in records:
-                to_email = row.get('Correo')
+                to_email = str(row.get('Correo', '')).strip()
+                colegio = str(row.get('Colegio', '')).strip()
+                neuro = str(row.get('Neurología', '')).strip()
+                medicina = str(row.get('Medicina Familiar', '')).strip()
+
                 if not to_email:
-                    continue  # Si falta correo, saltar
+                    continue  # Saltar si falta correo
 
                 msg = EmailMessage()
                 msg['Subject'] = 'Solicitud de Estado de Conformidad'
-                msg['From'] = EMAIL_ADDRESS
+                msg['From'] = EMAIL_ADDRESS.strip()
                 msg['To'] = to_email
 
                 body = f"""
-Estimados equipo de {row.get('Colegio')},
+Estimados equipo de {colegio},
 
 Junto con saludarles, solicitamos su colaboración para remitir el estado de conformidad correspondiente a los estudiantes evaluados por nuestro equipo:
 
-- Evaluados en Neurología: {row.get('Neurología')}
-- Evaluados en Medicina Familiar: {row.get('Medicina Familiar')}
+- Evaluados en Neurología: {neuro}
+- Evaluados en Medicina Familiar: {medicina}
 
 Agradecemos de antemano su apoyo y disposición. Favor enviarlo dentro de las próximas 24 horas hábiles a más tardar.
 
