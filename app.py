@@ -1,16 +1,17 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request
 import pandas as pd
 import smtplib
 from email.message import EmailMessage
 import os
+import json
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'uploads'
+
+# Usar carpeta temporal que SIEMPRE existe en Render
+UPLOAD_FOLDER = '/tmp'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-import os
-
-# ✅ Toma las credenciales desde las Variables de Entorno
+# Leer credenciales desde variables de entorno
 EMAIL_ADDRESS = os.environ.get('EMAIL_ADDRESS')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 SMTP_SERVER = os.environ.get('SMTP_SERVER')
@@ -33,7 +34,6 @@ def index():
 @app.route('/send_emails', methods=['POST'])
 def send_emails():
     data = request.form.get('data')
-    import json
     records = json.loads(data)
 
     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as smtp:
@@ -54,7 +54,7 @@ Junto con saludarles, solicitamos su colaboración para remitir el estado de con
 - Evaluados en Neurología: {row['Neurología']}
 - Evaluados en Medicina Familiar: {row['Medicina Familiar']}
 
-Agradecemos de antemano su apoyo y disposición, Favor enviarlo dentro de las proximas 24 horas habiles a mas tardar.
+Agradecemos de antemano su apoyo y disposición. Favor enviarlo dentro de las próximas 24 horas hábiles a más tardar.
 
 Quedamos atentos a cualquier consulta.
 
