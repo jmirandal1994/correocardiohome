@@ -94,7 +94,7 @@
 
       <!-- Botón para enviar todos los correos -->
       <form method="POST" action="{{ url_for('send_emails') }}">
-        <input type="hidden" name="data" value="{{ data | tojson }}">
+        <input type="hidden" name="data" value='{{ data | tojson | safe }}'>
         <button type="submit">🚀 Enviar Todos los Correos</button>
       </form>
     </div>
