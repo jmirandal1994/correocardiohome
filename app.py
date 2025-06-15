@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response
 import pandas as pd
 import smtplib
 from email.message import EmailMessage
@@ -7,7 +7,7 @@ import json
 
 app = Flask(__name__)
 
-# Usar carpeta temporal que SIEMPRE existe en Render
+# Usar carpeta temporal en Render
 UPLOAD_FOLDER = '/tmp'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -33,26 +33,34 @@ def index():
 
 @app.route('/send_emails', methods=['POST'])
 def send_emails():
-    data = request.form.get('data')
-    records = json.loads(data)
+    try:
+        data = request.form.get('data')
+        if not data:
+            return Response("No se recibió data para enviar.", status=400)
 
-    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as smtp:
-        smtp.starttls()
-        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        records = json.loads(data)
 
-        for row in records:
-            msg = EmailMessage()
-            msg['Subject'] = 'Solicitud de Estado de Conformidad'
-            msg['From'] = EMAIL_ADDRESS
-            msg['To'] = row['Correo']
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as smtp:
+            smtp.starttls()
+            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
 
-            body = f"""
-Estimados equipo de {row['Colegio']},
+            for row in records:
+                to_email = row.get('Correo')
+                if not to_email:
+                    continue  # Si falta correo, saltar
+
+                msg = EmailMessage()
+                msg['Subject'] = 'Solicitud de Estado de Conformidad'
+                msg['From'] = EMAIL_ADDRESS
+                msg['To'] = to_email
+
+                body = f"""
+Estimados equipo de {row.get('Colegio')},
 
 Junto con saludarles, solicitamos su colaboración para remitir el estado de conformidad correspondiente a los estudiantes evaluados por nuestro equipo:
 
-- Evaluados en Neurología: {row['Neurología']}
-- Evaluados en Medicina Familiar: {row['Medicina Familiar']}
+- Evaluados en Neurología: {row.get('Neurología')}
+- Evaluados en Medicina Familiar: {row.get('Medicina Familiar')}
 
 Agradecemos de antemano su apoyo y disposición. Favor enviarlo dentro de las próximas 24 horas hábiles a más tardar.
 
@@ -60,11 +68,15 @@ Quedamos atentos a cualquier consulta.
 
 Saludos cordiales,
 Equipo CardioHome
-            """
-            msg.set_content(body)
-            smtp.send_message(msg)
+                """
+                msg.set_content(body)
+                smtp.send_message(msg)
 
-    return "Correos enviados correctamente."
+        return "✅ Correos enviados correctamente."
+
+    except Exception as e:
+        print(f"Error interno: {e}")
+        return Response(f"❌ Error interno: {e}", status=500)
 
 if __name__ == '__main__':
     app.run(debug=True)
