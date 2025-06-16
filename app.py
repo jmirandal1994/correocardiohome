@@ -50,8 +50,10 @@ def send_emails():
                 neuro = str(row.get('Neurología', '')).strip()
                 medicina = str(row.get('Medicina Familiar', '')).strip()
 
-                if not to_email:
-                    continue  # Saltar si falta correo
+                # ✅ Validar correo: no vacío y debe tener '@'
+                if not to_email or '@' not in to_email:
+                    print(f"🚫 Saltando correo inválido: '{to_email}'")
+                    continue  # Saltar fila si correo es inválido
 
                 msg = EmailMessage()
                 msg['Subject'] = 'Solicitud de Estado de Conformidad'
